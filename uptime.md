@@ -66,6 +66,3 @@ int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 	}
 	lseek(fd, 0L, SEEK_SET); //set 0
 	if ((local_n = read(fd, buf, sizeof buf -1)) == -1) {
-		途中
-	
-	
