@@ -1,4 +1,4 @@
-#procps uptime
+# procps uptime
 
 [uptime.c]
 
@@ -65,4 +65,30 @@ int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 	_exit(103);
 	}
 	lseek(fd, 0L, SEEK_SET); //set 0
+	//write contents of file to local_n
 	if ((local_n = read(fd, buf, sizeof buf -1)) == -1) {
+	perror(filename);
+	fflush(NULL);
+	_exit(103);
+	}
+	//write local_n and '\0' to buf
+	buf[local_n] = '\0';
+}while(0)
+```
+
+
+[proc/sysinf.c :80]
+
+```
+savelocale = setlocale(LC_NUMERIC, NULL); //return ASCII/67(C)
+setlocale(LC_NUMERIC, savelocale); 
+if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
+	setlocale(LC_NUMERIC, savelocale);
+	fputs("bad data in" UPTIME_FILE "\n", stderr);
+	return 0;
+}
+setlocale(LC_NUMERIC, savelocale);
+SET_IF_DESIRED(uptime_secs, up);
+SET_IF_DESIRED(idle_secs, idle);
+return up;
+```
