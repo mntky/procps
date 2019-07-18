@@ -2,7 +2,7 @@
 
 [uptime.c]
 
-```
+```c
 ~
 int main(int argc. char *argv[]) {
 	if(argc == 1) {
@@ -45,7 +45,7 @@ char *sprint_uptime(void) {
 
 [proc/sysinfo.c :75]
 
-```
+```c
 int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 	double up=0, idle=0;
 	char *restrict savelocale;
@@ -56,22 +56,28 @@ int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 
 [proc/sysinfo.c :54]
 
-```
+```c
 #define FILE_TO_BUF(filename, fd) do{
 	static int local_n;
+	/* ファイルのオープン */
 	if (fd == -1 && (fd = open(filename, 0_RDONLY)) == -1) {
 	fputs(BAD_OPEN_MESSAGE, stderr); //write to stderr
 	fflush(NULL); //all stream
 	_exit(103);
 	}
-	lseek(fd, 0L, SEEK_SET); //set 0
-	//write contents of file to local_n
+
+	/* ファイルの先頭にシーク	*/
+	lseek(fd, 0L, SEEK_SET); 
+
+	/* ↑でfd（handle)に繋がってるファイルから、 */
+	/* buf-1(2047byte)分bufに読み込み			*/
+	/* local_nには読み込んだbyte数を返す		*/
 	if ((local_n = read(fd, buf, sizeof buf -1)) == -1) {
 	perror(filename);
 	fflush(NULL);
 	_exit(103);
 	}
-	//write local_n and '\0' to buf
+	/*local_nバイト目に'\0'をに書き込み*/
 	buf[local_n] = '\0';
 }while(0)
 ```
@@ -79,16 +85,28 @@ int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 
 [proc/sysinf.c :80]
 
-```
-savelocale = setlocale(LC_NUMERIC, NULL); //return ASCII/67(C)
-setlocale(LC_NUMERIC, savelocale); 
+```c
+/*現状のlocale一旦保存しておく*/
+/*setlocale(LC_NUMERIC, NULL)自分の環境では67帰ってきた*/
+savelocale = setlocale(LC_NUMERIC, NULL);
+
+/*localeをCにセット"*/
+setlocale(LC_NUMERIC, "C"); 
+
+/*bufの中身をupとidleに入れる*/
 if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
+	/*もとのlocaleに戻す*/
 	setlocale(LC_NUMERIC, savelocale);
 	fputs("bad data in" UPTIME_FILE "\n", stderr);
 	return 0;
 }
+/*もとのlocaleに戻す*/
 setlocale(LC_NUMERIC, savelocale);
+/*uptime_secsがnullじゃなかったらuptime_secsにup入れる*/
 SET_IF_DESIRED(uptime_secs, up);
+/*idle_secsがnullじゃなかったらidle_secsにidle入れる*/
 SET_IF_DESIRED(idle_secs, idle);
 return up;
 ```
+
+
