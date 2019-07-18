@@ -113,7 +113,7 @@ return up;
 
 [proc/whattime.c :48]
 
-```
+```c
 /* proc/sysinfoで/proc/uptimeから取ったデータ
 uptime(&uptime_secs, &idle_secs);
 /*uptime_secs 計算して起動して何日立っているか計算*/
