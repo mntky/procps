@@ -78,12 +78,13 @@ int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
 	_exit(103);
 	}
 	/*local_nバイト目に'\0'をに書き込み*/
+	/*/proc/uptimeに(例 753.86 2942.88)みたいな感じで書いてある*/
 	buf[local_n] = '\0';
 }while(0)
 ```
 
 
-[proc/sysinf.c :80]
+[proc/sysinfo.c :80]
 
 ```c
 /*現状のlocale一旦保存しておく*/
@@ -94,6 +95,7 @@ savelocale = setlocale(LC_NUMERIC, NULL);
 setlocale(LC_NUMERIC, "C"); 
 
 /*bufの中身をupとidleに入れる*/
+/*bufには " 753.86 2942.88 \0 " データ入っている */
 if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
 	/*もとのlocaleに戻す*/
 	setlocale(LC_NUMERIC, savelocale);
@@ -109,4 +111,29 @@ SET_IF_DESIRED(idle_secs, idle);
 return up;
 ```
 
+[proc/whattime.c :48]
 
+```
+/* proc/sysinfoで/proc/uptimeから取ったデータ
+uptime(&uptime_secs, &idle_secs);
+/*uptime_secs 計算して起動して何日立っているか計算*/
+updays = (int) uptime_secs / (60*60*24);
+/*bufの後ろに"up"を連結*/
+strcat (buf, "up");
+pos += 3;
+if(updays)
+	pos += sprintf(buf + pos, %d day%d, ", updays, (updays != 1) ? "s" : "");
+upminutes = (int) uptime_secs / 60;
+uphours = upminutes / 60;
+/* uphoursになってるけどupdaysなのでは????*/
+uphours = uphours % 24;
+upminutes = upminutes & 60;
+
+/* 途中 */
+
+
+
+
+
+
+```
