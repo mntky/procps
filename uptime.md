@@ -125,9 +125,17 @@ if(updays)
 	pos += sprintf(buf + pos, %d day%d, ", updays, (updays != 1) ? "s" : "");
 upminutes = (int) uptime_secs / 60;
 uphours = upminutes / 60;
-/* uphoursになってるけどupdaysなのでは????*/
+/* uphoursを24で割って余りをuphoursに入れておく*/
 uphours = uphours % 24;
-upminutes = upminutes & 60;
+upminutes = upminutes % 60;
+if(uphours)
+	pos += sprintf(buf + pos, "%2d:%02d, ", uphours, upminutes);
+else
+	pos += sprintf(buf + pos, "%d min, ", upminutes);
+
+numuser = 0;
+setutent();
+while((utmpstruct = getutent())) {
 
 /* 途中 */
 
